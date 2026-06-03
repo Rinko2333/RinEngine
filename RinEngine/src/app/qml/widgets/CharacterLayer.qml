@@ -21,6 +21,15 @@ Item {
         "right":        1178
     })
 
+    // z-order: rightmost on top so they overlap left characters
+    readonly property var positionOrder: ({
+        "left":         1,
+        "center-left":  2,
+        "center":       3,
+        "center-right": 4,
+        "right":        5
+    })
+
     // Pre-declared slots — always exist, no race condition
     property list<Item> slotList: [slot0, slot1, slot2, slot3, slot4]
 
@@ -29,7 +38,7 @@ Item {
         id: slot0
         property string positionName: ""
         property alias charImage: slotImg0
-        width: parent ? parent.height * 0.6 : 400
+        width: parent ? parent.height * 0.85 : 400
         height: parent ? parent.height : 700
         visible: false
         y: parent ? parent.height : 700
@@ -48,7 +57,7 @@ Item {
         id: slot1
         property string positionName: ""
         property alias charImage: slotImg1
-        width: parent ? parent.height * 0.6 : 400
+        width: parent ? parent.height * 0.85 : 400
         height: parent ? parent.height : 700
         visible: false
         y: parent ? parent.height : 700
@@ -67,7 +76,7 @@ Item {
         id: slot2
         property string positionName: ""
         property alias charImage: slotImg2
-        width: parent ? parent.height * 0.6 : 400
+        width: parent ? parent.height * 0.85 : 400
         height: parent ? parent.height : 700
         visible: false
         y: parent ? parent.height : 700
@@ -86,7 +95,7 @@ Item {
         id: slot3
         property string positionName: ""
         property alias charImage: slotImg3
-        width: parent ? parent.height * 0.6 : 400
+        width: parent ? parent.height * 0.85 : 400
         height: parent ? parent.height : 700
         visible: false
         y: parent ? parent.height : 700
@@ -105,7 +114,7 @@ Item {
         id: slot4
         property string positionName: ""
         property alias charImage: slotImg4
-        width: parent ? parent.height * 0.6 : 400
+        width: parent ? parent.height * 0.85 : 400
         height: parent ? parent.height : 700
         visible: false
         y: parent ? parent.height : 700
@@ -155,7 +164,7 @@ Item {
 
         slot.positionName = posName;
         slot.visible = true;
-        slot.z = slotList.indexOf(slot);
+        slot.z = positionOrder[posName] || slot.z;
         slot.x = xPos - slot.width / 2;
 
         if (imageUrl.toString() !== "") {

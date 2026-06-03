@@ -15,6 +15,8 @@ const QHash<QString, QString> ResourceManager::s_protocolMap = {
 };
 
 const QStringList ResourceManager::s_imageExtensions = {".png", ".jpg", ".jpeg", ".bmp", ".webp"};
+const QStringList ResourceManager::s_audioExtensions = {".mp3", ".ogg", ".wav", ".flac", ".aac", ".m4a", ".wma"};
+const QStringList ResourceManager::s_videoExtensions = {".mp4", ".webm", ".mkv", ".avi", ".mov"};
 
 ResourceManager* ResourceManager::instance()
 {
@@ -47,10 +49,15 @@ QString ResourceManager::resolveProtocol(const QString &path) const
     for (auto it = s_protocolMap.begin(); it != s_protocolMap.end(); ++it) {
         if (path.startsWith(it.key())) {
             QString relativePath = path.mid(it.key().length());
-            // If image protocol, try to find the file with extension
+            QString basePath = assetsBasePath() + it.value() + relativePath;
             if (it.key() == "bg:" || it.key() == "char:") {
-                QString basePath = assetsBasePath() + it.value() + relativePath;
                 return findImageFile(basePath);
+            }
+            if (it.key() == "bgm:" || it.key() == "se:" || it.key() == "voice:") {
+                return findAudioFile(basePath);
+            }
+            if (it.key() == "video:") {
+                return findVideoFile(basePath);
             }
             return assetsBasePath() + it.value() + relativePath;
         }
@@ -61,20 +68,33 @@ QString ResourceManager::resolveProtocol(const QString &path) const
     return assetsBasePath() + path;
 }
 
-QString ResourceManager::findImageFile(const QString &basePath) const
+QString ResourceManager::findFileByExtensions(const QString &basePath, const QStringList &extensions) const
 {
-    // Check if the base path already has an extension
     if (QFileInfo::exists(basePath)) {
         return basePath;
     }
-    // Try each extension
-    for (const auto &ext : s_imageExtensions) {
+    for (const auto &ext : extensions) {
         QString withExt = basePath + ext;
         if (QFileInfo::exists(withExt)) {
             return withExt;
         }
     }
-    return basePath; // return original and let caller deal with it
+    return basePath;
+}
+
+QString ResourceManager::findImageFile(const QString &basePath) const
+{
+    return findFileByExtensions(basePath, s_imageExtensions);
+}
+
+QString ResourceManager::findAudioFile(const QString &basePath) const
+{
+    return findFileByExtensions(basePath, s_audioExtensions);
+}
+
+QString ResourceManager::findVideoFile(const QString &basePath) const
+{
+    return findFileByExtensions(basePath, s_videoExtensions);
 }
 
 QString ResourceManager::resolvePath(const QString &path) const
@@ -100,6 +120,49 @@ QUrl ResourceManager::getImage(const QString &path)
     // Cache the resolved file path
     m_cache.insert(path, fullPath);
     Logger::instance()->debug("ResourceManager", "Resolved image: " + path + " -> " + fullPath);
+
+    return QUrl::fromLocalFile(fullPath);
+}
+
+QUrl ResourceManager::getAudio(const QString &path)
+{
+    // Return from cache if available
+    if (m_cache.contains(path)) {
+        return QUrl::fromLocalFile(m_cache[path]);
+    }
+
+    QString fullPath = resolveProtocol(path);
+    QFileInfo fi(fullPath);
+
+    // For audio, allow non-existent file (will be logged by caller)
+    if (!fi.exists()) {
+        Logger::instance()->warn("ResourceManager", "Audio not found: " + fullPath);
+        return QUrl();
+    }
+
+    m_cache.insert(path, fullPath);
+    Logger::instance()->debug("ResourceManager", "Resolved audio: " + path + " -> " + fullPath);
+
+    return QUrl::fromLocalFile(fullPath);
+}
+
+QUrl ResourceManager::getVideo(const QString &path)
+{
+    // Return from cache if available
+    if (m_cache.contains(path)) {
+        return QUrl::fromLocalFile(m_cache[path]);
+    }
+
+    QString fullPath = resolveProtocol(path);
+    QFileInfo fi(fullPath);
+
+    if (!fi.exists()) {
+        Logger::instance()->warn("ResourceManager", "Video not found: " + fullPath);
+        return QUrl();
+    }
+
+    m_cache.insert(path, fullPath);
+    Logger::instance()->debug("ResourceManager", "Resolved video: " + path + " -> " + fullPath);
 
     return QUrl::fromLocalFile(fullPath);
 }

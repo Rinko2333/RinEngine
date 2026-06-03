@@ -94,6 +94,60 @@ Item {
         }
     }
 
+    // 预定义的 screenShake 动画模板
+    SequentialAnimation {
+        id: screenShakeAnim
+        property var animTarget: null
+        property real originX: 0
+        property real originY: 0
+
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "x"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "y"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "x"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "y"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "x"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "y"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "x"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "y"; duration: 30 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "x"; duration: 80 }
+        PropertyAnimation { target: screenShakeAnim.animTarget; property: "y"; duration: 80 }
+
+        onFinished: {
+            if (root.animCallback) {
+                var cb = root.animCallback;
+                root.animCallback = null;
+                cb();
+            }
+        }
+    }
+
+    // screenFlash overlay
+    Rectangle {
+        id: flashOverlay
+        anchors.fill: parent
+        color: "#ffffff"
+        opacity: 0
+        visible: opacity > 0
+        z: 1000
+    }
+
+    // Flash fade-out animation
+    PropertyAnimation {
+        id: flashFadeOut
+        target: flashOverlay
+        property: "opacity"
+        to: 0
+        duration: 200
+        easing.type: Easing.OutCubic
+        onFinished: {
+            if (root.animCallback) {
+                var cb = root.animCallback;
+                root.animCallback = null;
+                cb();
+            }
+        }
+    }
+
     // Play an animation on a target element
     function play(target, preset, duration, callback) {
         if (!target || !preset) {
@@ -141,10 +195,57 @@ Item {
             pulseAnim.start();
             break;
 
+        case "screenShake": {
+            var intensity = (duration || 0.5) * 10;
+            screenShake(target, intensity, callback);
+            break;
+        }
+
+        case "screenFlash":
+            screenFlash(callback);
+            break;
+
         default:
             root.animCallback = null;
             if (callback) callback();
             break;
         }
+    }
+
+    function screenShake(target, intensity, callback) {
+        if (!target) {
+            if (callback) callback();
+            return;
+        }
+        root.animCallback = callback;
+        var sx = target.x;
+        var sy = target.y;
+        var i = (intensity || 5);
+        screenShakeAnim.animTarget = target;
+        screenShakeAnim.originX = sx;
+        screenShakeAnim.originY = sy;
+        var props = screenShakeAnim.children || [];
+        var xTargets = [sx+i, sx-i, sx+i*0.8, sx-i*0.6, sx+i*0.4, sx-i*0.2, sx+i*0.2, sx-i*0.1, sx, sx];
+        var yTargets = [sy, sy+i*0.7, sy-i*0.5, sy+i*0.3, sy-i*0.2, sy, sy, sy, sy, sy];
+        for (var bi = 0; bi < 10 && bi < props.length; bi++) {
+            if (props[bi] instanceof PropertyAnimation) {
+                if (bi % 2 === 0) {
+                    props[bi].to = xTargets[bi];
+                    props[bi].property = "x";
+                } else {
+                    props[bi].to = yTargets[bi];
+                    props[bi].property = "y";
+                }
+            }
+        }
+        screenShakeAnim.start();
+    }
+
+    function screenFlash(callback) {
+        root.animCallback = callback;
+        flashFadeOut.stop();
+        flashOverlay.color = "#ffffff";
+        flashOverlay.opacity = 0.6;
+        flashFadeOut.start();
     }
 }

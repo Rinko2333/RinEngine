@@ -1,6 +1,6 @@
 qt_add_executable(appRinEngine main.cpp)
 
-target_link_libraries(appRinEngine PRIVATE RinEngineCore Qt6::QuickControls2)
+target_link_libraries(appRinEngine PRIVATE RinEngineCore Qt6::QuickControls2 Qt6::MultimediaWidgets)
 
 qt_add_qml_module(appRinEngine
     URI RinEngine
@@ -20,6 +20,7 @@ qt_add_qml_module(appRinEngine
         qml/widgets/SettingsScreen.qml
         qml/widgets/SystemMenu.qml
         qml/effects/AnimationPlayer.qml
+        qml/widgets/VideoPlayer.qml
 )
 
 set_target_properties(appRinEngine PROPERTIES

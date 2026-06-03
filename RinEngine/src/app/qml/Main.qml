@@ -5,7 +5,7 @@ import RinEngine.Core 1.0
 
 Window {
     id: root
-    title: "RinEngine"
+    title: "Rin"
 
     readonly property int gameWidth: 1280
     readonly property int gameHeight: 720
@@ -120,10 +120,10 @@ Window {
                 }
                 function onShowChoices(o) { choiceBox.show(o); }
                 function onHideChoices() { choiceBox.hide(); }
-                function onPlayBgm(i, v) { Logger.info("Audio", "BGM: " + i); }
-                function onPlaySe(i) { Logger.info("Audio", "SE: " + i); }
-                function onPlayVoice(i) { Logger.info("Audio", "Voice: " + i); }
-                function onPlayVideo(i) { Logger.info("Video", "Play: " + i); }
+                function onPlayBgm(i, v) { AudioManager.playBgm(i, v); }
+                function onPlaySe(i) { AudioManager.playSe(i); }
+                function onPlayVoice(i) { AudioManager.playVoice(i); }
+                function onPlayVideo(i) { videoPlayer.play(i); }
                 function onScriptEnded() {
                     Logger.info("Game", "Script finished.");
                     Qt.callLater(function() { sceneStack.pop(); });
@@ -146,7 +146,7 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 z: 5
-                enabled: !choiceBox.visible && !systemMenu.visible && !saveLoadScreen.visible && !historyScreen.visible && !settingsOverlay.visible
+                enabled: !choiceBox.visible && !systemMenu.visible && !saveLoadScreen.visible && !historyScreen.visible && !settingsOverlay.visible && !videoPlayer.visible
                 onClicked: {
                     if (dialogueBox.isTyping) dialogueBox.finishTyping();
                     else if (dialogueBox.textComplete && ScriptRunner.isRunning) ScriptRunner.advance();
@@ -188,6 +188,10 @@ Window {
                 onClosed: { hide(); gameScreen.forceActiveFocus(); }
             }
 
+            VideoPlayer {
+                id: videoPlayer; anchors.fill: parent; z: 70
+            }
+
             // Start script once the game screen and all Connections exist
             property bool openLoadScreen: false
 
@@ -209,7 +213,8 @@ Window {
                 else if (dialogueBox.textComplete && ScriptRunner.isRunning) ScriptRunner.advance();
             }
             Keys.onEscapePressed: {
-                if (settingsOverlay.visible) { settingsOverlay.hide(); gameScreen.forceActiveFocus(); }
+                if (videoPlayer.visible) { videoPlayer.skip(); }
+                else if (settingsOverlay.visible) { settingsOverlay.hide(); gameScreen.forceActiveFocus(); }
                 else if (historyScreen.visible) { historyScreen.hide(); gameScreen.forceActiveFocus(); }
                 else if (saveLoadScreen.visible) { saveLoadScreen.hide(); gameScreen.forceActiveFocus(); }
                 else if (systemMenu.visible) { systemMenu.hide(); gameScreen.forceActiveFocus(); }

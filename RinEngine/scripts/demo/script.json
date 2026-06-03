@@ -4,12 +4,14 @@
   ["set", "affection", 0],
   ["set", "flag_met_alice", false],
 
+  ["bgm", "morning", {"vol":80}],
   ["bg", "school", {"tr":"fade", "d":1.0}],
 
   ["ch", "alice", "happy", "center", {"effect":"bounce", "d":0.5}],
   ["say", "Alice", "你好！欢迎来到 RinEngine！"],
   ["say", "Alice", "这是一个基于 Qt6 的跨平台视觉小说引擎。"],
   ["say", "Alice", "现在脚本引擎已经可以工作了！"],
+  ["se", "ding"],
 
   ["set", "flag_met_alice", true],
   ["add", "affection", 5],
@@ -62,10 +64,10 @@
   ["label", "route_library"],
   ["bg", "library", {"tr":"fade", "d":1.0}],
   ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
-  ["say", "汐山凉音", "图书馆是个安静的好地方。"],
-  ["say", "汐山凉音", "我们一起看书吧。"],
+  ["say", "塔塔老师", "图书馆是个安静的好地方。"],
+  ["say", "塔塔老师", "我们一起看书吧。"],
   ["add", "affection", 3],
-  ["say", "汐山凉音", "虽然加的好感度不多，但很温馨~"],
+  ["say", "塔塔老师", "虽然加的好感度不多，但很温馨~"],
   ["jump", "ending"],
 
   ["label", "route_home"],
