@@ -1,0 +1,27 @@
+# Project files
+log.txt
+ChatHistory.md
+.vscode/
+Release/
+
+# Build artifacts
+build/
+*.exe
+*.dll
+*.a
+*.o
+*.obj
+*.moc
+*.rcc
+*.pdb
+*.ilk
+*.user
+CMakeLists.txt.user*
+
+# Qt Creator files
+*.pro.user*
+*.qbs.user*
+
+# OS files
+.DS_Store
+Thumbs.db
