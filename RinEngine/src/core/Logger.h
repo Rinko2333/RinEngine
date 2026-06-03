@@ -5,6 +5,9 @@
 #include <QString>
 #include <QDateTime>
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QMutex>
 
 enum class LogLevel {
     Debug,
@@ -31,8 +34,13 @@ signals:
 
 private:
     Logger();
+    ~Logger();
     void log(LogLevel level, const QString &tag, const QString &message);
     static QString levelString(LogLevel level);
+
+    QFile m_logFile;
+    QTextStream m_logStream;
+    QMutex m_mutex;
 };
 
 #endif // LOGGER_H

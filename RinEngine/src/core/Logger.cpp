@@ -1,4 +1,6 @@
 #include "Logger.h"
+#include <QCoreApplication>
+#include <QDir>
 
 Logger* Logger::instance()
 {
@@ -8,7 +10,25 @@ Logger* Logger::instance()
 
 Logger::Logger()
     : QObject()
+    , m_logStream(&m_logFile)
 {
+    QStringList candidates = {
+        QCoreApplication::applicationDirPath() + "/rinengine.log",
+        QDir::currentPath() + "/rinengine.log",
+    };
+    for (const auto &path : candidates) {
+        m_logFile.setFileName(path);
+        if (m_logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            m_logStream.setDevice(&m_logFile);
+            break;
+        }
+    }
+}
+
+Logger::~Logger()
+{
+    if (m_logFile.isOpen())
+        m_logFile.close();
 }
 
 void Logger::debug(const QString &tag, const QString &message)
@@ -69,4 +89,10 @@ void Logger::log(LogLevel level, const QString &tag, const QString &message)
     }
 
     emit logMessage(level, tag, message);
+
+    if (m_logFile.isOpen()) {
+        QMutexLocker locker(&m_mutex);
+        m_logStream << formatted << "\n";
+        m_logStream.flush();
+    }
 }

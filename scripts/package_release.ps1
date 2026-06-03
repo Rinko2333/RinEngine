@@ -38,7 +38,7 @@ if (-not $SkipDeployQt) {
 }
 
 # Step 1: Prepare Release directory (preserve license files)
-Write-Host "[1/5] Preparing Release directory..." -ForegroundColor Yellow
+Write-Host "[1/7] Preparing Release directory..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Path $ReleaseDir -Force | Out-Null
 New-Item -ItemType Directory -Path "$ReleaseDir\Runtime" -Force | Out-Null
 New-Item -ItemType Directory -Path "$ReleaseDir\saves" -Force | Out-Null
@@ -48,13 +48,13 @@ Get-ChildItem -LiteralPath $ReleaseDir -File | Where-Object { $_.Name -notmatch 
 Get-ChildItem -LiteralPath "$ReleaseDir\Runtime" -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
 # Step 2: Copy executable
-Write-Host "[2/5] Copying executable..." -ForegroundColor Yellow
+Write-Host "[2/7] Copying executable..." -ForegroundColor Yellow
 Copy-Item $ExePath -Destination $ReleaseDir -Force
 Write-Host "  appRinEngine.exe -> Release\" -ForegroundColor Green
 
 # Step 3: Deploy Qt runtime
 if (-not $SkipDeployQt) {
-    Write-Host "[3/5] Deploying Qt runtime (windeployqt)..." -ForegroundColor Yellow
+    Write-Host "[3/7] Deploying Qt runtime (windeployqt)..." -ForegroundColor Yellow
     $tempDir = Join-Path $env:TEMP "rinengine_deploy"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     Copy-Item $ExePath -Destination $tempDir -Force
@@ -88,25 +88,14 @@ if (-not $SkipDeployQt) {
         Write-Host "  QML modules -> Release\Runtime\qml\" -ForegroundColor Green
     }
 
-    # Create qt.conf for runtime path redirection
-    $qtConf = @"
-[Paths]
-Prefix = .
-Libraries = Runtime
-Plugins = Runtime
-Qml2Imports = Runtime/qml
-"@
-    Set-Content -Path "$ReleaseDir\qt.conf" -Value $qtConf -Encoding ASCII
-    Write-Host "  qt.conf created (Runtime/ redirection)" -ForegroundColor Green
-
     # Cleanup temp
     Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 } else {
-    Write-Host "[3/5] Qt deployment skipped (--SkipDeployQt)" -ForegroundColor Yellow
+    Write-Host "[3/7] Qt deployment skipped (--SkipDeployQt)" -ForegroundColor Yellow
 }
 
 # Step 4: Copy assets
-Write-Host "[4/5] Copying game assets..." -ForegroundColor Yellow
+Write-Host "[4/7] Copying game assets..." -ForegroundColor Yellow
 if (Test-Path $AssetsSource) {
     $destAssets = "$ReleaseDir\assets"
     New-Item -ItemType Directory -Path $destAssets -Force | Out-Null
@@ -119,10 +108,51 @@ if (Test-Path $AssetsSource) {
     Write-Warning "  Assets not found: $AssetsSource"
 }
 
-# Step 5: Verify
-Write-Host "[5/5] Verifying..." -ForegroundColor Yellow
-$releaseFiles = Get-ChildItem -LiteralPath $ReleaseDir -Recurse | Measure-Object
-Write-Host "  Total items in Release: $($releaseFiles.Count)" -ForegroundColor Green
+# Step 5: Create launcher scripts
+Write-Host "[5/7] Creating launcher scripts..." -ForegroundColor Yellow
+
+$batRelease = @"
+@echo off
+chcp 65001 >nul
+setlocal
+
+set "RUNTIME_DIR=%~dp0Runtime"
+set "PATH=%RUNTIME_DIR%;%PATH%"
+
+start "" "%~dp0appRinEngine.exe"
+"@
+Set-Content -Path "$ReleaseDir\RinEngine.bat" -Value $batRelease -Encoding ASCII
+
+$batDebug = @"
+@echo off
+chcp 65001 >nul
+setlocal
+
+set "RUNTIME_DIR=%~dp0Runtime"
+set "PATH=%RUNTIME_DIR%;%PATH%"
+
+echo RinEngine starting... (console mode, check rinengine.log for output)
+echo.
+"%~dp0appRinEngine.exe"
+echo.
+echo App exited with code %ERRORLEVEL%
+pause
+"@
+Set-Content -Path "$ReleaseDir\RinEngine Debug.bat" -Value $batDebug -Encoding ASCII
+Write-Host "  RinEngine.bat (normal) + RinEngine Debug.bat (console)" -ForegroundColor Green
+
+# Step 6: Update qt.conf with proper paths
+$qtConf = @"
+[Paths]
+Prefix = .
+Libraries = Runtime
+Plugins = Runtime
+Qml2Imports = Runtime/qml
+"@
+Set-Content -Path "$ReleaseDir\qt.conf" -Value $qtConf -Encoding ASCII
+
+# Step 7: Verify
+Write-Host "[7/7] Verifying..." -ForegroundColor Yellow
 
 Write-Host ""
 Write-Host "=== Done! ===" -ForegroundColor Cyan

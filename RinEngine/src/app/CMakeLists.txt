@@ -2,11 +2,17 @@ qt_add_executable(appRinEngine main.cpp)
 
 target_link_libraries(appRinEngine PRIVATE RinEngineCore Qt6::QuickControls2 Qt6::MultimediaWidgets)
 
+qt_add_resources(appRinEngine "l10n_resources"
+    PREFIX "/l10n"
+    BASE "${CMAKE_SOURCE_DIR}/l10n"
+    FILES
+        "${CMAKE_SOURCE_DIR}/l10n/zh.json"
+        "${CMAKE_SOURCE_DIR}/l10n/en.json"
+)
+
 qt_add_qml_module(appRinEngine
     URI RinEngine
     VERSION 1.0
-    RESOURCES
-        resources.qrc
     QML_FILES
         qml/Main.qml
         qml/layers/LayerStack.qml
