@@ -1,5 +1,6 @@
 #include "ScriptRunner.h"
 #include "VariableManager.h"
+#include "GalleryManager.h"
 #include "Logger.h"
 #include <QCoreApplication>
 
@@ -300,6 +301,18 @@ void ScriptRunner::executeCommand(const ScriptCommand &cmd)
         QString bgmId = cmd.args.size() > 0 ? cmd.args[0] : "";
         double vol = cmd.options.value("vol", 80.0).toDouble();
         emit playBgm(bgmId, vol);
+        GalleryManager::instance()->unlockBgm(bgmId);
+        advanceToNext();
+        return;
+
+    } else if (cmd.type == "unlock") {
+        QString category = cmd.args.size() > 0 ? cmd.args[0] : "";
+        QString id = cmd.args.size() > 1 ? cmd.args[1] : "";
+        if (category == "cg") {
+            GalleryManager::instance()->unlockCg(id);
+        } else if (category == "bgm") {
+            GalleryManager::instance()->unlockBgm(id);
+        }
         advanceToNext();
         return;
 

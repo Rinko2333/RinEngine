@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE QVariantMap slotInfo(int slot);
     Q_INVOKABLE bool slotExists(int slot) const;
     Q_INVOKABLE bool canSave() const;
+    Q_INVOKABLE bool hasAnySave() const;
 
     // Delete
     Q_INVOKABLE bool deleteSlot(int slot);

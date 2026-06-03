@@ -10,6 +10,8 @@ Item {
     signal continueGame()
     signal loadGame()
     signal openSettings()
+    signal openCgGallery()
+    signal openMusicRoom()
     signal quitGame()
 
     // Background
@@ -18,7 +20,6 @@ Item {
         color: "#1a1a2e"
     }
 
-    // Decorative gradient
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
@@ -28,31 +29,35 @@ Item {
         }
     }
 
-    // Title
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.18
-        text: "RinEngine"
-        font.pixelSize: 72
-        font.bold: true
-        color: "#e94560"
-        style: Text.Outline
-        styleColor: "#000000"
-    }
-
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.28
-        text: "Visual Novel Engine"
-        font.pixelSize: 22
-        color: Qt.rgba(255, 255, 255, 0.6)
-    }
-
-    // Menu buttons
+    // Title area
     Column {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.45
-        spacing: 16
+        y: parent.height * 0.14
+        spacing: 8
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "RinEngine"
+            font.pixelSize: 72
+            font.bold: true
+            color: "#e94560"
+            style: Text.Outline
+            styleColor: "#000000"
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Visual Novel Engine"
+            font.pixelSize: 22
+            color: Qt.rgba(255, 255, 255, 0.6)
+        }
+    }
+
+    // Main menu buttons
+    Column {
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: parent.height * 0.39
+        spacing: 12
 
         MenuButton {
             text: "开始游戏"
@@ -63,7 +68,7 @@ Item {
         MenuButton {
             text: "继续游戏"
             width: 280
-            enabled: GameStateManager.slotExists(98) || GameStateManager.listSaves().length > 0
+            enabled: GameStateManager.hasAnySave()
             onClicked: {
                 if (GameStateManager.slotExists(98)) {
                     GameStateManager.scheduleLoad(98);
@@ -75,8 +80,34 @@ Item {
         MenuButton {
             text: "加载游戏"
             width: 280
-            enabled: GameStateManager.listSaves().length > 0
+            enabled: GameStateManager.hasAnySave()
             onClicked: root.loadGame()
+        }
+
+        // Divider
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 200; height: 1
+            color: Qt.rgba(1, 1, 1, 0.1)
+        }
+
+        MenuButton {
+            text: "CG 鉴赏"
+            width: 280
+            onClicked: root.openCgGallery()
+        }
+
+        MenuButton {
+            text: "音乐鉴赏"
+            width: 280
+            onClicked: root.openMusicRoom()
+        }
+
+        // Divider
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 200; height: 1
+            color: Qt.rgba(1, 1, 1, 0.1)
         }
 
         MenuButton {

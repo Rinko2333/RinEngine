@@ -9,6 +9,8 @@ qt_add_qml_module(appRinEngine
         qml/Main.qml
         qml/layers/LayerStack.qml
         qml/screens/TitleScreen.qml
+        qml/screens/CGGalleryScreen.qml
+        qml/screens/MusicRoomScreen.qml
         qml/widgets/BackgroundLayer.qml
         qml/widgets/CharacterLayer.qml
         qml/widgets/CharacterSlot.qml

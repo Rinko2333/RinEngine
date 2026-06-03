@@ -15,6 +15,7 @@
 #include "ScriptRunner.h"
 #include "GameStateManager.h"
 #include "AudioManager.h"
+#include "GalleryManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("RinEngine.Core", 1, 0, "ScriptRunner", ScriptRunner::instance());
     qmlRegisterSingletonInstance("RinEngine.Core", 1, 0, "GameStateManager", GameStateManager::instance());
     qmlRegisterSingletonInstance("RinEngine.Core", 1, 0, "AudioManager", AudioManager::instance());
+    qmlRegisterSingletonInstance("RinEngine.Core", 1, 0, "GalleryManager", GalleryManager::instance());
 
     QQmlApplicationEngine engine;
 

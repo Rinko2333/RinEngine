@@ -62,6 +62,15 @@ bool GameStateManager::slotExists(int slot) const
     return QFileInfo::exists(slotFilePath(slot));
 }
 
+bool GameStateManager::hasAnySave() const
+{
+    for (int i = 0; i < MAX_SAVE_SLOTS; i++) {
+        if (QFileInfo::exists(slotFilePath(i)))
+            return true;
+    }
+    return false;
+}
+
 QVariantMap GameStateManager::slotInfo(int slot)
 {
     QVariantMap info;

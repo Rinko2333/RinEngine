@@ -15,6 +15,8 @@ add_library(RinEngineCore STATIC
     GameStateManager.cpp
     AudioManager.h
     AudioManager.cpp
+    GalleryManager.h
+    GalleryManager.cpp
 )
 
 target_include_directories(RinEngineCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

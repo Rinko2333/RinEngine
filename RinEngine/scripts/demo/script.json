@@ -2,24 +2,26 @@
   ["label", "start"],
 
   ["set", "affection", 0],
-  ["set", "flag_met_alice", false],
+  ["set", "flag_met_suzune", false],
 
   ["bgm", "morning", {"vol":80}],
   ["bg", "school", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_school"],
 
-  ["ch", "alice", "happy", "center", {"effect":"bounce", "d":0.5}],
-  ["say", "Alice", "你好！欢迎来到 RinEngine！"],
-  ["say", "Alice", "这是一个基于 Qt6 的跨平台视觉小说引擎。"],
-  ["say", "Alice", "现在脚本引擎已经可以工作了！"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "你好！欢迎来到 RinEngine！"],
+  ["say", "汐山凉音", "这是一个基于 Qt6 的跨平台视觉小说引擎。"],
+  ["say", "汐山凉音", "现在脚本引擎已经可以工作了！"],
   ["se", "ding"],
 
-  ["set", "flag_met_alice", true],
-  ["add", "affection", 5],
+  ["set", "flag_met_suzune", true],
+  ["add", "affection", 3],
 
   ["bg", "garden", {"tr":"fade", "d":0.8}],
-  ["say", "Alice", "我们换了个场景，还加了淡入淡出效果。"],
-  ["ch", "alice", "think", "center", {"effect":"shake", "d":0.3}],
-  ["say", "Alice", "嗯…你看起来很有潜力！"],
+  ["unlock", "cg", "cg_garden"],
+  ["say", "汐山凉音", "我们换了个场景，还加了淡入淡出效果。"],
+  ["ch", "suzune", "confuse", "center", {"effect":"shake", "d":0.3}],
+  ["say", "汐山凉音", "嗯…你看起来很有潜力！"],
 
   ["label", "choice_point_1"],
   ["select", [
@@ -28,22 +30,23 @@
   ]],
 
   ["label", "route_thanks"],
-  ["say", "Alice", "不用谢哦。"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "不用谢哦。"],
   ["add", "affection", 5],
   ["jump", "judge"],
 
   ["label", "route_nothing"],
-  ["say", "Alice", "不用这么冷淡嘛。"],
-  ["add", "affection", 3],
+  ["say", "汐山凉音", "不用这么冷淡嘛。"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
   ["jump", "judge"],
 
   ["label", "judge"],
   ["if", "affection>=5", [
-    ["say", "Alice", "好感度已经这么高了！不错不错~"],
+    ["say", "汐山凉音", "好感度已经这么高了！不错不错~"],
     ["add", "affection", 5]
   ]],
 
-  ["say", "Alice", "那么，接下来你想做什么呢？"],
+  ["say", "汐山凉音", "那么，接下来你想做什么呢？"],
 
   ["label", "choice_point_2"],
   ["select", [
@@ -53,32 +56,36 @@
   ]],
 
   ["label", "route_rooftop"],
-  ["say", "Alice", "哇，天台的风好大！"],
-  ["say", "Alice", "不过风景真不错。"],
+  ["bg", "rooftop", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_rooftop"],
+  ["ch", "suzune", "shock", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "哇，天台的风好大！"],
+  ["say", "汐山凉音", "不过风景真不错。"],
   ["add", "affection", 10],
   ["if", "affection>=15", [
-    ["say", "Alice", "我们的好感度已经很高了呢！"]
+    ["say", "汐山凉音", "我们的好感度已经很高了呢！"]
   ]],
   ["jump", "ending"],
 
   ["label", "route_library"],
   ["bg", "library", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_library"],
   ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
-  ["say", "塔塔老师", "图书馆是个安静的好地方。"],
-  ["say", "塔塔老师", "我们一起看书吧。"],
+  ["say", "汐山凉音", "图书馆是个安静的好地方。"],
+  ["say", "汐山凉音", "我们一起看书吧。"],
   ["add", "affection", 3],
-  ["say", "塔塔老师", "虽然加的好感度不多，但很温馨~"],
+  ["say", "汐山凉音", "虽然加的好感度不多，但很温馨~"],
   ["jump", "ending"],
 
   ["label", "route_home"],
-  ["say", "Alice", "诶？要回去了吗？"],
-  ["say", "Alice", "好吧…那下次再见！"],
-  ["say", "Alice", "（好感度没有变化）"],
+  ["say", "汐山凉音", "诶？要回去了吗？"],
+  ["say", "汐山凉音", "好吧…那下次再见！"],
+  ["say", "汐山凉音", "（好感度没有变化）"],
   ["jump", "ending"],
 
   ["label", "ending"],
-  ["say", "Alice", "好了，这次就到这里吧！"],
-  ["say", "Alice", "感谢你体验 RinEngine 的演示！"],
-  ["ch", "alice", "happy", "center", {"effect":"bounce", "d":0.4}],
-  ["say", "Alice", "我们下次再见！"]
+  ["say", "汐山凉音", "好了，这次就到这里吧！"],
+  ["say", "汐山凉音", "感谢你体验 RinEngine 的演示！"],
+  ["ch", "suzune", "laugh", "center", {"effect":"bounce", "d":0.4}],
+  ["say", "汐山凉音", "我们下次再见！"]
 ]

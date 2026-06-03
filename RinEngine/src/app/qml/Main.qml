@@ -78,7 +78,27 @@ Window {
                 sceneStack.push(gameScreenComponent, { "openLoadScreen": true });
             }
             onOpenSettings: { settingsOverlay.open(); }
+            onOpenCgGallery: { sceneStack.push(cgGalleryComponent); }
+            onOpenMusicRoom: { sceneStack.push(musicRoomComponent); }
             onQuitGame: { Qt.quit(); }
+        }
+    }
+
+    Component {
+        id: cgGalleryComponent
+        CGGalleryScreen {
+            width: gameWidth
+            height: gameHeight
+            onBack: { sceneStack.pop(); }
+        }
+    }
+
+    Component {
+        id: musicRoomComponent
+        MusicRoomScreen {
+            width: gameWidth
+            height: gameHeight
+            onBack: { sceneStack.pop(); }
         }
     }
 

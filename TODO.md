@@ -256,21 +256,21 @@ RinEngine/
 
 ### 4.1 音频系统
 
-- [ ] **4.1.1 `AudioManager`（C++）**
+- [x] **4.1.1 `AudioManager`（C++）**
   - 基于 Qt Multimedia
   - 三个独立通道：BGM、SE、Voice
   - 交叉淡入淡出切换 BGM
   - 音量控制（每个通道独立）
-- [ ] **4.1.2 音频指令**
+- [x] **4.1.2 音频指令**
   - `play_bgm`, `stop_bgm`, `fadeout_bgm`
   - `play_se`（音效，可叠加）
   - `play_voice`（语音，独占 Voice 通道）
-- [ ] **4.1.3 QML 绑定**
+- [x] **4.1.3 QML 绑定**
   - 设置界面音量滑块直连 `AudioManager`
 
 ### 4.2 视频播放
 
-- [ ] **4.2.1 视频播放器**
+- [x] **4.2.1 视频播放器**
   - 基于 Qt Multimedia `VideoOutput`
   - 全屏播放 OP/ED/过场动画
   - 支持跳过（点击/按 ESC）
@@ -278,11 +278,11 @@ RinEngine/
 
 ### 4.3 演出动画系统
 
-- [ ] **4.3.1 补间动画引擎**
+- [x] **4.3.1 补间动画引擎**
   - 基于 QML `Behavior` + `Animation`
   - 支持的动画类型：`move`, `fade`, `scale`, `rotate`, `shake`, `color`
   - 缓动函数：`linear`, `easeIn`, `easeOut`, `easeInOut`, `bounce`
-- [ ] **4.3.2 屏幕特效**
+- [x] **4.3.2 屏幕特效**
   - 全屏闪白（`screenflash`）
   - 画面震动（`screenShake`）
   - 画面色调变化（通过 `ColorOverlay`）
