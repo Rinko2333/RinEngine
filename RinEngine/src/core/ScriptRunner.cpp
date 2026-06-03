@@ -1,6 +1,7 @@
 #include "ScriptRunner.h"
 #include "VariableManager.h"
 #include "GalleryManager.h"
+#include "LocalizationManager.h"
 #include "Logger.h"
 #include <QCoreApplication>
 
@@ -226,6 +227,8 @@ void ScriptRunner::executeCommand(const ScriptCommand &cmd)
     } else if (cmd.type == "say") {
         QString speaker = cmd.args.size() > 0 ? cmd.args[0] : "";
         QString text = cmd.args.size() > 1 ? cmd.args[1] : "";
+        if (text.startsWith('@'))
+            text = LocalizationManager::instance()->tr(text.mid(1));
         if (speaker.trimmed().isEmpty() && text.trimmed().isEmpty()) {
             advanceToNext();
             return;
@@ -376,6 +379,8 @@ void ScriptRunner::executeNextChild()
     if (childType == "say") {
         QString speaker = childArgs.size() > 0 ? childArgs[0] : "";
         QString text = childArgs.size() > 1 ? childArgs[1] : "";
+        if (text.startsWith('@'))
+            text = LocalizationManager::instance()->tr(text.mid(1));
         if (speaker.trimmed().isEmpty() && text.trimmed().isEmpty()) {
             executeNextChild();
             return;

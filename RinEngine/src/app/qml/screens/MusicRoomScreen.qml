@@ -7,6 +7,8 @@ import RinEngine.Core 1.0
 Item {
     id: root
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal back()
 
     property string currentTrack: ""
@@ -26,7 +28,7 @@ Item {
         height: 50
 
         Button {
-            text: "← 返回"
+            text: t("MUSIC_BACK")
             flat: true
             onClicked: {
                 AudioManager.stopBgm(200);
@@ -42,7 +44,7 @@ Item {
         Item { Layout.fillWidth: true }
 
         Text {
-            text: "音乐鉴赏"
+            text: t("MUSIC_TITLE")
             font.pixelSize: 22
             font.bold: true
             color: "#ffffff"
@@ -140,7 +142,7 @@ Item {
                     }
 
                     Text {
-                        text: unlocked ? modelData.desc : "尚未解锁";
+                        text: unlocked ? modelData.desc : t("MUSIC_LOCKED");
                         font.pixelSize: 12
                         color: unlocked ? "#888888" : "#444444"
                     }
@@ -177,7 +179,7 @@ Item {
     Text {
         anchors.centerIn: parent
         visible: trackCatalog.length === 0
-        text: "暂无曲目"
+        text: t("MUSIC_EMPTY")
         font.pixelSize: 18
         color: "#666666"
     }

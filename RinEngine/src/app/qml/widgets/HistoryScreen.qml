@@ -10,6 +10,8 @@ Item {
     visible: false
     enabled: visible
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal closed()
 
     function show() { visible = true; enabled = true; }
@@ -36,14 +38,14 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 Text {
-                    text: "对话历史"
+                    text: t("HISTORY_TITLE")
                     font.pixelSize: 24
                     font.bold: true
                     color: "#ffffff"
                 }
                 Item { Layout.fillWidth: true }
                 Text {
-                    text: "共 " + historyList.count + " 条"
+                    text: t("HISTORY_COUNT").replace("%1", historyList.count)
                     color: "#888888"
                     font.pixelSize: 14
                 }

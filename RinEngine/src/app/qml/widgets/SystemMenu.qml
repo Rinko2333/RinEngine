@@ -10,6 +10,8 @@ Item {
     visible: false
     enabled: visible
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal resumeGame()
     signal saveGame()
     signal loadGame()
@@ -45,7 +47,7 @@ Item {
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                text: "系统菜单"
+                text: t("SYSMENU_TITLE")
                 font.pixelSize: 24
                 font.bold: true
                 color: "#ffffff"
@@ -53,38 +55,38 @@ Item {
             }
 
             MenuButton {
-                text: "继续游戏"
+                text: t("SYSMENU_CONTINUE")
                 Layout.fillWidth: true
                 onClicked: root.resumeGame()
             }
 
             MenuButton {
-                text: "保存"
+                text: t("SYSMENU_SAVE")
                 Layout.fillWidth: true
                 enabled: ScriptRunner.canSave
                 onClicked: root.saveGame()
             }
 
             MenuButton {
-                text: "读取"
+                text: t("SYSMENU_LOAD")
                 Layout.fillWidth: true
                 onClicked: root.loadGame()
             }
 
             MenuButton {
-                text: "设置"
+                text: t("SYSMENU_SETTINGS")
                 Layout.fillWidth: true
                 onClicked: root.openSettings()
             }
 
             MenuButton {
-                text: "回到标题"
+                text: t("SYSMENU_TITLE_BTN")
                 Layout.fillWidth: true
                 onClicked: root.returnToTitle()
             }
 
             MenuButton {
-                text: "退出游戏"
+                text: t("SYSMENU_QUIT")
                 Layout.fillWidth: true
                 onClicked: root.quitGame()
             }

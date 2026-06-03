@@ -13,6 +13,8 @@ Item {
     property bool saveMode: true  // true=save, false=load
     property int _refreshCounter: 0
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal closed()
 
     function show() { visible = true; enabled = true; }
@@ -42,7 +44,7 @@ Item {
                 Layout.fillWidth: true
 
                 Text {
-                    text: root.saveMode ? "保存游戏" : "读取游戏"
+                    text: root.saveMode ? t("SAVE_SAVE_TITLE") : t("SAVE_LOAD_TITLE")
                     font.pixelSize: 28
                     font.bold: true
                     color: "#ffffff"
@@ -51,7 +53,7 @@ Item {
                 Item { Layout.fillWidth: true }
 
                 Button {
-                    text: root.saveMode ? "切换到读取" : "切换到保存"
+                    text: root.saveMode ? t("SAVE_SWITCH_LOAD") : t("SAVE_SWITCH_SAVE")
                     flat: true
                     onClicked: root.saveMode = !root.saveMode
                     contentItem: Text {
@@ -120,7 +122,7 @@ Item {
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 4
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: slotRect.hasData ? info.timestamp : "空槽位 " + (index + 1)
+                            text: slotRect.hasData ? info.timestamp : t("SAVE_EMPTY").replace("%1", index + 1)
                             color: slotRect.hasData ? "#cccccc" : "#666666"
                             font.pixelSize: 11
                         }
@@ -160,7 +162,7 @@ Item {
                 spacing: 12
 
                 MenuButton {
-                    text: "快速保存 (F5)"
+                    text: t("SAVE_QUICKSAVE")
                     Layout.preferredWidth: 180
                     onClicked: {
                         GameStateManager.quickSave();
@@ -168,7 +170,7 @@ Item {
                 }
 
                 MenuButton {
-                    text: "快速读取 (F7)"
+                    text: t("SAVE_QUICKLOAD")
                     Layout.preferredWidth: 180
                     enabled: GameStateManager.slotExists(98)
                     onClicked: {
@@ -180,7 +182,7 @@ Item {
                 Item { Layout.fillWidth: true }
 
                 MenuButton {
-                    text: "关闭"
+                    text: t("SAVE_CLOSE")
                     Layout.preferredWidth: 120
                     onClicked: root.closed()
                 }

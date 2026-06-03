@@ -7,6 +7,8 @@ import RinEngine.Core 1.0
 Item {
     id: root
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal back()
 
     Rectangle {
@@ -23,7 +25,7 @@ Item {
         height: 50
 
         Button {
-            text: "← 返回"
+            text: t("CG_BACK")
             flat: true
             onClicked: root.back()
             contentItem: Text { text: parent.text; color: "#e94560"; font.pixelSize: 18 }
@@ -36,7 +38,7 @@ Item {
         Item { Layout.fillWidth: true }
 
         Text {
-            text: "CG 鉴赏"
+            text: t("CG_TITLE")
             font.pixelSize: 22
             font.bold: true
             color: "#ffffff"
@@ -165,7 +167,7 @@ Item {
             anchors.top: parent.top
             anchors.topMargin: 16
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "点击任意位置返回"
+            text: t("CG_CLICK_HINT")
             color: Qt.rgba(1,1,1,0.4)
             font.pixelSize: 14
         }

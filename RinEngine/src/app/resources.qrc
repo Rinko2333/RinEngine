@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/l10n">
+        <file alias="zh.json">../../l10n/zh.json</file>
+        <file alias="en.json">../../l10n/en.json</file>
+    </qresource>
+</RCC>

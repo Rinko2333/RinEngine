@@ -6,6 +6,8 @@ import RinEngine.Core 1.0
 Item {
     id: root
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal startGame()
     signal continueGame()
     signal loadGame()
@@ -60,13 +62,13 @@ Item {
         spacing: 12
 
         MenuButton {
-            text: "开始游戏"
+            text: t("TITLE_START")
             width: 280
             onClicked: root.startGame()
         }
 
         MenuButton {
-            text: "继续游戏"
+            text: t("TITLE_CONTINUE")
             width: 280
             enabled: GameStateManager.hasAnySave()
             onClicked: {
@@ -78,7 +80,7 @@ Item {
         }
 
         MenuButton {
-            text: "加载游戏"
+            text: t("TITLE_LOAD")
             width: 280
             enabled: GameStateManager.hasAnySave()
             onClicked: root.loadGame()
@@ -92,13 +94,13 @@ Item {
         }
 
         MenuButton {
-            text: "CG 鉴赏"
+            text: t("TITLE_CG")
             width: 280
             onClicked: root.openCgGallery()
         }
 
         MenuButton {
-            text: "音乐鉴赏"
+            text: t("TITLE_MUSIC")
             width: 280
             onClicked: root.openMusicRoom()
         }
@@ -111,13 +113,13 @@ Item {
         }
 
         MenuButton {
-            text: "设置"
+            text: t("TITLE_SETTINGS")
             width: 280
             onClicked: root.openSettings()
         }
 
         MenuButton {
-            text: "退出"
+            text: t("TITLE_QUIT")
             width: 280
             onClicked: root.quitGame()
         }

@@ -1,0 +1,91 @@
+[
+  ["label", "start"],
+
+  ["set", "affection", 0],
+  ["set", "flag_met_suzune", false],
+
+  ["bgm", "morning", {"vol":80}],
+  ["bg", "school", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_school"],
+
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "@DLG_WELCOME"],
+  ["say", "汐山凉音", "@DLG_INTRO"],
+  ["say", "汐山凉音", "@DLG_ENGINE_WORKS"],
+  ["se", "ding"],
+
+  ["set", "flag_met_suzune", true],
+  ["add", "affection", 3],
+
+  ["bg", "garden", {"tr":"fade", "d":0.8}],
+  ["unlock", "cg", "cg_garden"],
+  ["say", "汐山凉音", "@DLG_NEW_SCENE"],
+  ["ch", "suzune", "confuse", "center", {"effect":"shake", "d":0.3}],
+  ["say", "汐山凉音", "@DLG_POTENTIAL"],
+
+  ["label", "choice_point_1"],
+  ["select", [
+    ["谢谢你的夸奖", "route_thanks", ""],
+    ["嗯……", "route_nothing", ""]
+  ]],
+
+  ["label", "route_thanks"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "@DLG_WELCOME_REPLY"],
+  ["add", "affection", 5],
+  ["jump", "judge"],
+
+  ["label", "route_nothing"],
+  ["say", "汐山凉音", "@DLG_FRIENDLY"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["jump", "judge"],
+
+  ["label", "judge"],
+  ["if", "affection>=5", [
+    ["say", "汐山凉音", "@DLG_AFFECTION_HIGH"],
+    ["add", "affection", 5]
+  ]],
+
+  ["say", "汐山凉音", "@DLG_WHAT_NEXT"],
+
+  ["label", "choice_point_2"],
+  ["select", [
+    ["去天台看看", "route_rooftop", "affection>=10"],
+    ["去图书馆", "route_library", ""],
+    ["直接回家", "route_home", ""]
+  ]],
+
+  ["label", "route_rooftop"],
+  ["bg", "rooftop", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_rooftop"],
+  ["ch", "suzune", "shock", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "@DLG_ROOFTOP_WIND"],
+  ["say", "汐山凉音", "@DLG_ROOFTOP_VIEW"],
+  ["add", "affection", 10],
+  ["if", "affection>=15", [
+    ["say", "汐山凉音", "@DLG_AFFECTION_VERY_HIGH"]
+  ]],
+  ["jump", "ending"],
+
+  ["label", "route_library"],
+  ["bg", "library", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_library"],
+  ["ch", "suzune", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "汐山凉音", "@DLG_LIBRARY_QUIET"],
+  ["say", "汐山凉音", "@DLG_LIBRARY_READ"],
+  ["add", "affection", 3],
+  ["say", "汐山凉音", "@DLG_LIBRARY_WARM"],
+  ["jump", "ending"],
+
+  ["label", "route_home"],
+  ["say", "汐山凉音", "@DLG_GOING_BACK"],
+  ["say", "汐山凉音", "@DLG_SEE_YOU"],
+  ["say", "汐山凉音", "@DLG_NO_CHANGE"],
+  ["jump", "ending"],
+
+  ["label", "ending"],
+  ["say", "汐山凉音", "@DLG_ENDING"],
+  ["say", "汐山凉音", "@DLG_THANKS"],
+  ["ch", "suzune", "laugh", "center", {"effect":"bounce", "d":0.4}],
+  ["say", "汐山凉音", "@DLG_BYE"]
+]

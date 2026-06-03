@@ -5,6 +5,8 @@ target_link_libraries(appRinEngine PRIVATE RinEngineCore Qt6::QuickControls2 Qt6
 qt_add_qml_module(appRinEngine
     URI RinEngine
     VERSION 1.0
+    RESOURCES
+        resources.qrc
     QML_FILES
         qml/Main.qml
         qml/layers/LayerStack.qml

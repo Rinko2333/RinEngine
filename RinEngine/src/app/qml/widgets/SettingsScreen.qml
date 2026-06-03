@@ -11,6 +11,8 @@ Item {
     visible: false
     enabled: visible
 
+    function t(key) { L10n.localeVersion; return L10n.tr(key); }
+
     signal closed()
     signal fullscreenToggled(bool fs)
 
@@ -37,7 +39,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 Text {
-                    text: "设置"
+                    text: t("SETTINGS_TITLE")
                     font.pixelSize: 28
                     font.bold: true
                     color: "#ffffff"
@@ -58,7 +60,7 @@ Item {
             // Text speed
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "文字速度"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_TEXT_SPEED"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Slider {
                     id: textSpeedSlider
                     Layout.fillWidth: true
@@ -71,7 +73,7 @@ Item {
             // Auto speed
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "自动速度"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_AUTO_SPEED"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Slider {
                     id: autoSpeedSlider
                     Layout.fillWidth: true
@@ -87,7 +89,7 @@ Item {
             // BGM Volume
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "BGM"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_BGM"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Slider {
                     id: bgmSlider
                     Layout.fillWidth: true
@@ -100,7 +102,7 @@ Item {
             // SE Volume
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "SE"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_SE"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Slider {
                     id: seSlider
                     Layout.fillWidth: true
@@ -113,7 +115,7 @@ Item {
             // Voice Volume
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "语音"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_VOICE"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Slider {
                     id: voiceSlider
                     Layout.fillWidth: true
@@ -129,7 +131,7 @@ Item {
             // Fullscreen
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "全屏"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_FULLSCREEN"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 Switch {
                     checked: Settings.fullscreen
                     onCheckedChanged: {
@@ -139,23 +141,24 @@ Item {
                 }
             }
 
-            // Language (placeholder)
+            // Language
             RowLayout {
                 Layout.fillWidth: true
-                Text { text: "语言"; color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
+                Text { text: t("SETTINGS_LANGUAGE"); color: "#cccccc"; font.pixelSize: 16; Layout.preferredWidth: 100 }
                 ComboBox {
-                    model: ["中文", "English", "日本語"]
-                    currentIndex: 0
-                    enabled: false  // Placeholder
+                    model: ["中文", "English"]
+                    currentIndex: Settings.language === "zh" ? 0 : 1
+                    onCurrentIndexChanged: {
+                        Settings.language = currentIndex === 0 ? "zh" : "en";
+                    }
                 }
-                Text { text: "(预留)"; color: "#666666"; font.pixelSize: 12 }
             }
 
             Item { Layout.fillHeight: true }
 
             // Close button
             MenuButton {
-                text: "关闭"
+                text: t("SETTINGS_CLOSE")
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 200
                 onClicked: root.closed()

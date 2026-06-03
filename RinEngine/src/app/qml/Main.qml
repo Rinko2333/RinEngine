@@ -67,14 +67,14 @@ Window {
             width: gameWidth
             height: gameHeight
             onStartGame: {
-                ScriptRunner.loadScript("scripts/demo/script.json");
+                ScriptRunner.loadScript("assets/scripts/demo/script.json");
                 sceneStack.push(gameScreenComponent);
             }
             onContinueGame: {
                 sceneStack.push(gameScreenComponent);
             }
             onLoadGame: {
-                ScriptRunner.loadScript("scripts/demo/script.json");
+                ScriptRunner.loadScript("assets/scripts/demo/script.json");
                 sceneStack.push(gameScreenComponent, { "openLoadScreen": true });
             }
             onOpenSettings: { settingsOverlay.open(); }
