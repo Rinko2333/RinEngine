@@ -14,7 +14,7 @@
 | 后端 | C++ 静态库 `RinEngineCore` |
 | 桥接 | `qmlRegisterSingletonInstance` 注册 C++ 单例到 `RinEngine.Core` QML module |
 | 构建 | CMake 3.16+, C++17, MinGW 64-bit |
-
+AI推理过程可以是英文，但是对于用户的最终输出必须是中文！！
 ---
 
 ## 目录结构
@@ -31,7 +31,8 @@ RinEngine/
 │   │   ├── VariableManager.h/cpp     # 游戏变量存储 + 条件求值
 │   │   ├── ScriptParser.h/cpp        # JSON 脚本解析
 │   │   ├── ScriptRunner.h/cpp        # 脚本执行引擎
-│   │   └── GameStateManager.h/cpp    # 存档/读档系统
+│   │   ├── GameStateManager.h/cpp    # 存档/读档系统
+│   │   └── AudioManager.h/cpp        # Phase 4: 三通道音频 (BGM/SE/Voice)
 │   └── app/                    # 可执行文件
 │       ├── CMakeLists.txt
 │       ├── main.cpp            # 入口，注册 C++ 单例
@@ -39,7 +40,7 @@ RinEngine/
 │           ├── Main.qml        # 主窗口 + StackView
 │           ├── screens/        # TitleScreen
 │           ├── layers/         # LayerStack (预留)
-│           ├── widgets/        # BackgroundLayer, CharacterLayer, DialogueBox, ChoiceBox, etc.
+│           ├── widgets/        # BackgroundLayer, CharacterLayer, DialogueBox, ChoiceBox, VideoPlayer, etc.
 │           └── effects/        # AnimationPlayer
 ├── assets/                     # 资源文件（bg/, char/, bgm/, se/, voice/, video/）
 ├── scripts/                    # 剧情脚本（demo/script.json）
@@ -161,26 +162,59 @@ cmake --build "RinEngine\build\Desktop_Qt_6_5_3_MinGW_64_bit-Debug" --target app
 
 ---
 
-## Phase 4 准备
+## Phase 4 — 完成 ✅
 
-Phase 4 目标：音频管理、视频播放、演出动画。
+Phase 4 目标：音频管理、视频播放、演出动画。**已全部实现。**
 
-### 已实现的 Phase 4 前置基础
+### 实现摘要
 
-- `ResourceManager` 已支持 `bgm:`, `se:`, `voice:`, `video:` 协议路径
-- `ScriptRunner` 已 emit `playBgm(bgmId, volume)`, `playSe(seId)`, `playVoice(voiceId)` 信号
-- `SettingsManager` 已有 `bgmVolume`, `seVolume`, `voiceVolume` 属性
-- `Main.qml` 中 BGM/SE/Voice 信号 handler 目前只做 Logger 输出
-- `AnimationPlayer.qml` 已有 bounce, shake, pulse 预设
+| 组件 | 文件 | 要点 |
+|------|------|------|
+| **AudioManager** | `src/core/AudioManager.h/.cpp` | BGM 双通道交叉淡入淡出 (QTimer 50ms/step)、SE 单通道、Voice 单通道 |
+| **VideoPlayer** | `src/app/qml/widgets/VideoPlayer.qml` | VideoOutput + MediaPlayer，支持点击/ESC 跳过，播完自动 advance |
+| **AnimationPlayer 扩展** | `src/app/qml/effects/AnimationPlayer.qml` | 新增 `screenShake` (10步 XY 抖动) 和 `screenFlash` (白色闪屏) |
+| **ResourceManager 扩展** | `src/core/ResourceManager.h/.cpp` | 新增 `getAudio()`/`getVideo()` + 音频/视频扩展名搜索 |
+| **CMake** | 三层 CMakeLists.txt | `find_package` 添加 `Multimedia` + `MultimediaWidgets` |
 
-### Phase 4 待做
+### Phase 4 编码模式
 
-1. **AudioManager（C++）** — 基于 Qt Multimedia，三个独立通道
-2. **视频播放器（QML）** — 基于 `VideoOutput`
-3. **演出动画** — 当前 Timer-based 动画可升级为 Qt Quick Animations
+1. **AudioManager 音量链路**：Script 指令音量(0-100) × Settings 全局音量(0-100) → `QAudioOutput::setVolume(0.0-1.0)`。`SettingsManager` 的 NOTIFY 信号直连 AudioManager 内部 lambda，实时生效。
+2. **BGM 交叉淡入淡出**：两个 `QMediaPlayer` + `QAudioOutput` 对 (`m_bgmA`/`m_bgmB`)，轮流用作 active/fading。`m_fadeTimer` (50ms × 10步 = 500ms) 逐步调整两者音量。
+3. **媒体文件容错**：音频/视频文件不存在时只 Logger::warn，不崩溃不阻塞。ScriptRunner 中 `bgm`/`se`/`voice` 指令不等待 (`advanceToNext()`)，`video` 指令等待点击。
+4. **VideoPlayer 集成**：作为游戏画面内的覆盖层 (z: 70)，显示时禁用底层 MouseArea。ESC 链中插入 `videoPlayer.skip()` 优先处理。
+5. **AnimationPlayer API**：通用入口 `play(target, preset, duration, callback)` + 专用方法 `screenShake(target, intensity, callback)` 和 `screenFlash(callback)`。
 
 ### Phase 4 注意事项
 
-- Qt Multimedia 模块需在 CMake 中添加 `find_package(Qt6 REQUIRED COMPONENTS ... Multimedia)`
-- 音频文件暂缺（`assets/bgm/`, `assets/se/` 目录为空），需准备测试素材或 mock
-- 动画系统当前用 Timer 实现（避免 Qt5Compat 依赖），Phase 4 可考虑升级但保持兼容
+- 音频文件暂缺 (`assets/bgm/`, `assets/se/`, `assets/voice/` 目录为空)，引擎会静默跳过
+- `Voice` 通道单个 `QMediaPlayer`，不叠加；`SE` 同理
+- `QAudioOutput` 构造时需传入 parent (this)，否则 Qt 6.5 可能内存泄漏
+- `VisualSnapshot` 暂不含音频状态，存档加载后不会恢复 BGM（Phase 5 可补）
+
+---
+
+## Phase 5 准备
+
+Phase 5 目标：标题界面增强、CG 鉴赏、音乐鉴赏。
+
+### 已实现的 Phase 5 前置基础
+
+- `TitleScreen.qml` 已有基本框架（开始/继续/读档/设置/退出按钮）
+- `SaveLoadScreen.qml` 已有 20 槽位存档界面
+- `SettingsScreen.qml` 已有完整设置面板
+- `AudioManager` 已就绪，音乐鉴赏可直接调用
+- `ResourceManager` 已支持所有资源协议
+
+### Phase 5 待做
+
+1. **CG 鉴赏 (CGGallery)** — 基于解锁条件的图片画廊，网格缩略图 + 大图查看
+2. **音乐鉴赏 (MusicRoom)** — BGM 播放列表，显示曲名/时长，播放/暂停
+3. **标题界面增强** — 背景动画、logo 效果、继续游戏按钮状态绑定
+4. **解锁数据持久化** — CG/音乐解锁状态存入 SaveManager 或独立文件
+
+### Phase 5 注意事项
+
+- CG 解锁标记可存储在 `VariableManager`（简单）或独立 JSON 文件（跨存档持久）
+- 音乐鉴赏需 `AudioManager` 暴露当前播放状态（曲名、进度）
+- 标题界面"继续游戏"按钮的 enabled 状态需绑定存档存在检查
+- 鉴赏界面作为 StackView 新页面推入，或作为覆盖层
