@@ -148,7 +148,420 @@ cmake --build build --target appRinEngine
 
 ---
 
-## 六、添加新功能指南
+## 六、脚本编写教程 (script.json)
+
+RinEngine 使用 JSON 格式的脚本文件驱动游戏流程。脚本文件存放在 `assets/scripts/` 目录下。
+
+### 6.1 基本结构
+
+脚本由一个 JSON 数组组成，数组中每条元素是一条指令：
+
+```json
+[
+  ["指令类型", "参数1", "参数2", ...],
+  ["指令类型", "参数1", {"选项名":"选项值", ...}]
+]
+```
+
+每条指令的第一个元素是**指令类型**（字符串），后续元素按约定位置放置**位置参数**，最后一个元素如果是 JSON 对象 `{...}` 则为**命名选项**。
+
+所有指令**顺序执行**，遇到 `say`、`bg`、`ch` 等需要玩家点击的指令时会暂停等待点击。
+
+---
+
+### 6.2 指令详解
+
+#### `label` — 标签锚点
+
+定义跳转目标，本身不产生任何游戏效果。
+
+```
+["label", "标签名"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 标签名（字符串），用于 `jump`/`call` 定位 |
+
+#### `say` — 对话文本
+
+显示角色对话。引擎等待玩家点击后继续。
+
+```
+["say", "说话者", "对话文本"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 说话者名字（显示在对话框顶部） |
+| args[1] | 对话文本。以 `@` 开头表示翻译键，如 `@DLG_WELCOME` |
+
+**多语言支持：** 文本以 `@` 开头时，引擎从 `l10n/{语言}.json` 中查找翻译；不以 `@` 开头则原样显示。
+
+```
+["say", "Alice", "@intro_001"]   ← 多语言键
+["say", "Alice", "你好！"]       ← 直接文本（向后兼容）
+```
+
+#### `bg` — 切换背景
+
+切换全屏背景图片，支持过渡动画。
+
+```
+["bg", "背景ID", {"tr":"fade", "d":1.0}]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 背景 ID，对应 `assets/bg/{id}.png` 文件 |
+| options.tr | 过渡效果：`"fade"`（淡入淡出）、`"none"`（无动画），默认 `"fade"` |
+| options.d | 过渡持续时间（秒），默认 `1.0` |
+
+**引擎等待过渡动画完成后才继续。**
+
+#### `ch` — 显示/更新立绘
+
+在指定位置显示或更新角色立绘，可带入场效果。
+
+```
+["ch", "角色名", "表情", "位置", {"effect":"bounce", "d":0.5}]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 角色名，对应 `assets/char/{name}_{face}.png` |
+| args[1] | 表情名称，对应文件名中的 `_happy`/`_sad` 等后缀，默认 `"normal"` |
+| args[2] | 显示位置：`"left"`、`"center"`、`"right"`，默认 `"center"` |
+| options.effect | 入场效果：`"bounce"`、`"shake"`、`""`（无效果） |
+| options.d | 动画持续时间（秒），默认 `0.3` |
+
+**同一角色在同一位置再次调用时，会替换当前立绘（可配合特效做表情切换）。**
+
+#### `ch_hide` — 隐藏立绘
+
+隐藏指定位置的角色。
+
+```
+["ch_hide", "位置"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 要隐藏的位置：`"left"`、`"center"`、`"right"` |
+
+#### `ch_move` — 移动立绘
+
+将角色从一个位置移动到另一个位置。
+
+```
+["ch_move", "源位置", "目标位置", {"d":0.5}]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 源位置 |
+| args[1] | 目标位置 |
+| options.d | 移动持续时间（秒），默认 `0.5` |
+
+#### `select` — 选项分支
+
+显示选项按钮，玩家选择一个后跳转到对应标签。
+
+```
+["select", [
+  ["选项文本1", "跳转标签1", "显示条件"],
+  ["选项文本2", "跳转标签2", "显示条件"],
+  ["选项文本3", "跳转标签3", ""]
+]]
+```
+
+| 字段 | 说明 |
+|------|------|
+| `[0]` 选项文本 | 显示在按钮上的文字 |
+| `[1]` 跳转标签 | 选择后跳转到的 `label` 名称 |
+| `[2]` 显示条件 | 条件表达式（见下方），`""` 为始终显示。条件不满足时选项灰显/隐藏 |
+
+```
+["label", "路口"],
+["select", [
+  ["去天台", "route_rooftop", "affection>=10"],
+  ["去图书馆", "route_library", ""],
+  ["回家", "route_home", ""]
+]],
+```
+
+#### `jump` — 跳转
+
+无条件跳转到指定标签，继续从标签处执行。
+
+```
+["jump", "标签名"]
+```
+
+#### `call` / `return` — 子程序调用
+
+类似函数调用：`call` 跳转到标签并记住返回位置，`return` 从子程序返回。
+
+```
+["call", "子程序标签"]
+...子程序指令...
+["return"]
+```
+
+```
+["call", "show_intro"]
+
+["label", "show_intro"],
+["say", "", "这是一个通用介绍。"]  // 空说话者名 = 旁白
+["return"],
+```
+
+**注意：** 暂无 `call` 嵌套限制，但过深嵌套可能导致堆栈溢出。
+
+#### `if` — 条件分支
+
+根据条件表达式决定是否执行子指令块。
+
+```
+["if", "条件表达式", [
+  ["say", "", "条件满足时执行的指令"],
+  ["add", "affection", 5]
+]]
+```
+
+**条件表达式语法：**
+
+| 运算符 | 示例 | 说明 |
+|--------|------|------|
+| `>=` | `affection>=10` | 大于等于 |
+| `<=` | `health<=0` | 小于等于 |
+| `>` | `score>100` | 大于 |
+| `<` | `timer<30` | 小于 |
+| `==` | `flag==true` | 等于（数字或布尔） |
+| `!=` | `name!=Alice` | 不等于 |
+| 裸变量 | `flag_met` | 无需运算符 — 存在且非零/非空即为真 |
+
+支持布尔值：`flag==true`、`flag==false`。数值比较使用 `qFuzzyCompare`。
+
+#### `set` — 设置变量
+
+设置游戏变量值。支持数字、布尔、字符串。
+
+```
+["set", "变量名", 值]
+```
+
+| 示例 | 效果 |
+|------|------|
+| `["set", "affection", 0]` | 设置 `affection` = 0（数字） |
+| `["set", "flag_met", true]` | 设置 `flag_met` = true（布尔） |
+| `["set", "player_name", "Alice"]` | 设置 `player_name` = "Alice"（字符串） |
+
+#### `add` — 修改变量
+
+对数值变量进行加法操作。
+
+```
+["add", "变量名", 增量]
+```
+
+| 示例 | 效果 |
+|------|------|
+| `["add", "affection", 3]` | `affection += 3` |
+| `["add", "health", -10]` | `health -= 10` |
+
+#### `bgm` — 播放背景音乐
+
+播放背景音乐，BGM 通道支持交叉淡入淡出（500ms）。
+
+```
+["bgm", "曲目ID", {"vol":80}]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 曲目 ID，对应 `assets/bgm/{id}.{mp3/ogg/wav}` |
+| options.vol | 音量（0-100），叠加系统音量设置，默认 `80` |
+
+**BGM 不等待，立即继续执行下一条指令。播放过的 BGM 自动在音乐鉴赏中解锁。**
+
+#### `se` — 播放音效
+
+播放短音效，不等待。
+
+```
+["se", "音效ID"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 音效 ID，对应 `assets/se/{id}.{mp3/ogg/wav}` |
+
+#### `voice` — 播放语音
+
+播放角色语音，Voice 通道独占（同时只能一个语音）。
+
+```
+["voice", "语音ID"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 语音 ID，对应 `assets/voice/{id}.{mp3/ogg/wav}` |
+
+#### `video` — 播放视频
+
+全屏播放视频，玩家可点击或按 ESC 跳过。播完自动继续。
+
+```
+["video", "视频ID"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 视频 ID，对应 `assets/video/{id}.{mp4/webm}` |
+
+**视频播放期间禁用底层鼠标区域，ESC 优先跳过视频。**
+
+#### `unlock` — 解锁鉴赏
+
+手动解锁 CG 或 BGM 到鉴赏模式。
+
+```
+["unlock", "cg", "CG_ID"]
+["unlock", "bgm", "BGM_ID"]
+```
+
+| 参数 | 说明 |
+|------|------|
+| args[0] | 类别：`"cg"` 或 `"bgm"` |
+| args[1] | 要解锁的资源 ID |
+
+**注意：** BGM 也会在执行 `bgm` 指令时自动解锁。CG 需要手动用本指令解锁。重复解锁无影响。
+
+#### `wait` — 暂停等待
+
+暂停脚本执行，等待玩家点击后继续。相当于一条空白对话。
+
+```
+["wait"]
+```
+
+**用途：** 在场景切换后给玩家缓冲时间，或配合 `if` 之后的逻辑分离。
+
+---
+
+### 6.3 完整示例脚本
+
+```json
+[
+  ["label", "start"],
+
+  ["set", "affection", 0],
+
+  ["bgm", "morning", {"vol":80}],
+  ["bg", "school", {"tr":"fade", "d":1.0}],
+  ["unlock", "cg", "cg_school"],
+
+  ["ch", "alice", "happy", "center", {"effect":"bounce", "d":0.5}],
+  ["say", "Alice", "你好！欢迎来到我的世界！"],
+  ["add", "affection", 3],
+
+  ["label", "choice_1"],
+  ["select", [
+    ["打招呼", "route_greet", ""],
+    ["沉默", "route_silent", ""]
+  ]],
+
+  ["label", "route_greet"],
+  ["say", "Alice", "很高兴认识你！"],
+  ["add", "affection", 5],
+  ["jump", "check_affection"],
+
+  ["label", "route_silent"],
+  ["say", "Alice", "……"],
+  ["jump", "check_affection"],
+
+  ["label", "check_affection"],
+  ["if", "affection>=8", [
+    ["say", "Alice", "我感觉我们很合得来！"],
+    ["unlock", "cg", "cg_alice_smile"]
+  ]],
+
+  ["bg", "garden", {"tr":"fade", "d":0.8}],
+
+  ["say", "Alice", "下次再见！"],
+  ["say", "", "—— 完 ——"]
+]
+```
+
+---
+
+### 6.4 资源目录约定
+
+| 指令 | 资源位置 | 文件格式 |
+|------|---------|---------|
+| `bg` | `assets/bg/{id}.png` | PNG |
+| `ch` | `assets/char/{name}_{face}.png` | PNG |
+| `bgm` | `assets/bgm/{id}.{mp3,ogg,wav}` | MP3 / OGG / WAV |
+| `se` | `assets/se/{id}.{mp3,ogg,wav}` | MP3 / OGG / WAV |
+| `voice` | `assets/voice/{id}.{mp3,ogg,wav}` | MP3 / OGG / WAV |
+| `video` | `assets/video/{id}.{mp4,webm}` | MP4 / WebM |
+
+**立绘命名规则：** `{角色名}_{表情}.png`，例如 `alice_happy.png`、`alice_sad.png`。`ch` 指令的 `args[1]` 对应文件名中的 `{表情}` 部分。
+
+---
+
+### 6.5 变量系统
+
+变量可用于条件分支和选项显示条件。
+
+**数据类型：** 数字（整数/浮点数）、布尔值（`true`/`false`）、字符串。
+
+**生命周期：** 变量在脚本启动时自动清空，通过 `set`/`add` 创建或修改。存档时变量会被序列化保存。
+
+**常用模式：**
+
+```
+// 好感度系统
+["set", "affection", 0]
+["add", "affection", 3]
+
+// 标记系统（记录玩家选择）
+["set", "met_alice", true]
+["set", "chose_fight", false]
+
+// 条件选项
+["select", [
+  ["告白", "confess", "affection>=10"],
+  ["再等等", "wait", ""]
+]]
+```
+
+---
+
+### 6.6 多语言脚本
+
+使用 `@key` 语法编写支持多语言的对话：
+
+```json
+["say", "Alice", "@intro_001"]
+```
+
+翻译写在 `l10n/zh.json`（中文）和 `l10n/en.json`（英文）中：
+
+```json
+{
+  "intro_001": "你好，我是 Alice。",
+  "intro_002": "今天天气真好。"
+}
+```
+
+不以 `@` 开头的对话文本直接显示，适用于不需要翻译的内容（如系统提示、旁白过渡句等）。
+
+---
+
+## 七、添加新功能指南
 
 ### 添加新的 C++ Manager 类
 
@@ -175,13 +588,13 @@ cmake --build build --target appRinEngine
 
 ### 添加新的脚本指令
 
-1. 在 `src/core/ScriptRunner.cpp` 的 `executeCurrent()` 方法中添加 `else if (cmd.type == "xxx")` 分支
-2. 如需 Wait 机制，使用 `setWaitState(WAIT_*)` + `return`（不调用 `advanceToNext`）
-3. 如不需要等待，末尾调用 `advanceToNext()` 或 `executeNextChild()`
+1. 在 `src/core/ScriptRunner.cpp` 的 `executeCommand()` 方法中添加 `else if (cmd.type == "xxx")` 分支
+2. 如需玩家点击等待，使用 `setWaitState(WAIT_CLICK)` + `return`（不调用 `advanceToNext`）
+3. 如无需等待，末尾调用 `advanceToNext()` 或 `executeNextChild()`
 
 ---
 
-## 七、发布打包
+## 八、发布打包
 
 ```powershell
 # 确保已完成构建
@@ -216,7 +629,7 @@ D:\RinEngine\Release\
 
 ---
 
-## 八、常见问题
+## 九、常见问题
 
 ### Q: 构建报 "Could NOT find Qt6"
 
@@ -244,7 +657,7 @@ $env:PATH = "C:\Qt\6.5.3\mingw_64\bin;$env:PATH"
 
 ---
 
-## 九、QML 编码注意事项
+## 十、QML 编码注意事项
 
 1. **绑定刷新**：`Q_INVOKABLE` 方法不会触发 QML 绑定重计算。需要响应式更新的值必须是 `Q_PROPERTY` 且配 NOTIFY 信号。
 2. **本地化文本**：使用 `t("KEY")` 模式，定义在文件顶部：
